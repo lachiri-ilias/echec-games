@@ -1,0 +1,173 @@
+
+"""
+LACHIRI ILIAS 
+
+Class : 1TSI1
+
+
+♚ 9812 le roi          == R
+♕ 9813 la dame         == D
+♖ 9814 la tour         == T
+♗ 9815 le fou          == F 
+♘ 9816 le cavalier     == C
+♙ 9817 le pion         == P 
+
+"""
+#******************* Variable globale**************************************
+
+colonne = {'a':0,'b':1 ,'c':2 , 'd': 3 ,'e':4 , 'f':5 ,'g':6 ,'h':7 }
+rangee = {'8':0,'7':1 ,'6':2 , '5': 3 ,'4':4 , '3':5 ,'2':6 ,'1':7 }
+rep = {'R' : chr(9812),'D' : chr(9813),'T' : chr(9814),'F' : chr(9815),'C' : chr(9816),'P' : chr(9817),}
+COLONNE = {0:'a', 1:'b' , 2 : 'c' , 3 :'d' , 4 : 'e' , 5 : 'f' , 6 :'g' , 7 : 'h'}
+RANGEE = {0:'8', 1:'7' , 2 : '6' , 3 :'5' , 4 : '4' , 5 : '3' , 6 :'2' , 7 : '1'}
+
+
+def deplacer(piece) : 
+    nature = piece[0]
+    couleur = piece[1] 
+    coord = (rangee[piece[3]],colonne[piece[2]])
+    if nature == 'R' : 
+        RES = roi(coord)
+    elif nature == 'C' : 
+        RES = cavalier(coord)
+    elif nature == 'T' : 
+        RES = tour(coord)
+    elif nature == 'F' : 
+        RES = fou(coord)
+    elif nature == 'D' : 
+        RES = dame(coord)
+    elif nature == 'P' : 
+        RES = pion(coord,couleur)
+    return RES
+        
+def afficher(piece) : 
+    nature = piece[0]
+    couleur = piece[1] 
+    coord = (rangee[piece[3]],colonne[piece[2]])
+    if nature == 'R' : 
+        mat = remplace_pos(roi(coord),matrix())
+    elif nature == 'C' : 
+        mat =  remplace_pos(cavalier(coord),matrix())
+    elif nature == 'T' : 
+        mat = remplace_pos(tour(coord),matrix())
+    elif nature == 'F' :
+        mat = remplace_pos(fou(coord),matrix())
+    elif nature == 'D' : 
+        mat = remplace_pos(dame(coord),matrix())
+    elif nature == 'P' : 
+        mat = remplace_pos(pion(coord,couleur),matrix())
+        
+    mat[coord[0]][coord[1]] = rep[nature]    
+    return mat    
+#******************* programme de chaque elemnts *****************************    
+
+def roi(coord): 
+    res = []
+    haut_bas(res,coord)
+    if coord[1] + 1 < 8 : 
+        ajouter(res,coord[0],coord[1]+1)
+        haut_bas(res,(coord[0],coord[1]+1))
+    if coord[1] - 1 < 8 : 
+        ajouter(res,coord[0],coord[1]-1)
+        haut_bas(res,(coord[0],coord[1]-1)) 
+    return res 
+        
+def cavalier(coord) : 
+    res = []
+    if coord[0] + 2 < 8 : 
+        d_g(res, (coord[0] + 2,coord[1]))
+    if coord[0] - 2 >= 0 : 
+        d_g(res, (coord[0] - 2,coord[1]))
+    if coord[1] + 2 < 8 : 
+        haut_bas(res,(coord[0], coord[1] + 2))
+    if coord[1] - 2 >= 0 : 
+        haut_bas(res, (coord[0],coord[1] - 2))
+    return res 
+
+def tour(coord) : 
+    res = []
+    for k in range(8) :
+        if k != coord[0] : 
+            ajouter(res,k,coord[1])
+    for k in range(8) : 
+        if k != coord[1] : 
+         ajouter(res,coord[0],k)     
+    return res
+
+def fou(coord) : 
+    res = [] 
+    # diago
+    x,y = coord[0]+1, coord[1]+1
+    while x < 8 and y < 8 : 
+        ajouter(res,x,y)
+        x,y = x+1 , y+1
+    x,y = coord[0]-1, coord[1]-1
+    while x >= 0  and y >= 0 : 
+        ajouter(res,x,y)
+        x,y = x-1 , y-1
+    # anti diago
+    x,y = coord[0]-1, coord[1]+1
+    while x >= 0 and y < 8 : 
+        ajouter(res,x,y)
+        x,y = x-1 , y+1
+    x,y = coord[0]+1, coord[1]-1
+    while x < 8  and y >= 0 : 
+        ajouter(res,x,y)
+        x,y = x+1 , y-1
+    return res
+
+def dame(coord) : 
+    return fou(coord) + tour(coord)            
+def pion(coord,couleur) : 
+    res = []
+    if couleur == 'B' and coord[0] - 1 >= 0 : 
+        ajouter(res,coord[0]-1, coord[1])
+    elif couleur == 'N' and coord[0] +1 < 8 : 
+        ajouter(res,coord[0]+1, coord[1])
+    return res  
+        
+    
+   
+#*********************  sous programme ***********************************************    
+def to_coord(pos) : 
+    return rangee[pos[1]],colonne[pos[0]]
+
+def remplace_pos(res,mat) : 
+    for k in range(len(res)) : 
+        x,y = to_coord(res[k])
+        mat[x][y] = 'x'
+    return mat
+
+def matrix() : 
+    mat = []
+    for k in range(8): 
+        temp = []
+        for j in range(8) : 
+            temp.append('_')
+        mat.append(temp)
+    return mat
+    
+def haut_bas(res,coord) : 
+    if coord[0] + 1 < 8 : 
+        ajouter(res,coord[0]+1,coord[1])
+    if coord[0] -1 >= 0 :
+        ajouter(res,coord[0]-1,coord[1])
+        
+def d_g(res,coord) : 
+    if coord[1] + 1 < 8 : 
+        ajouter(res,coord[0],coord[1]+1)
+    if coord[1] -1 >= 0 :
+        ajouter(res,coord[0],coord[1]-1)
+        
+        
+def ajouter(res,coord1,coord2) : 
+    res.append(COLONNE[coord2] + RANGEE[coord1])
+    return res         
+            
+    
+            
+    
+    
+    
+#IL9
+    
